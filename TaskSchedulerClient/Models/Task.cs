@@ -8,12 +8,13 @@ namespace TaskSchedulerClient.Models
 {
     public enum TypeAction
     {
-        EveryDay = 1,
-        EveryWeek = 2
+        EveryDay = 0,
+        EveryWeek = 1
     }
 
     class Task
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         public DateTime TimeStart { get; set; }
         public string Path { get; set; }

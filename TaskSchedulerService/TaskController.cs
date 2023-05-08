@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TaskSchedulerClient
+namespace TaskSchedulerService
 {
     [System.Serializable]
     class TaskController
@@ -16,21 +16,9 @@ namespace TaskSchedulerClient
             Tasks = new List<Models.Task>();
         }
 
-        public Models.Task GetLastTask()
-        {
-            return Tasks[Tasks.Count - 1];
-        }
-
         public List<Models.Task> GetTasks()
         {
             return Tasks;
-        }
-
-        public void AddTasks(Models.Task task)
-        {
-            if (Tasks == null) Tasks = new List<Models.Task>();
-
-            Tasks.Add(task);
         }
     }
 }

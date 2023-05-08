@@ -9,38 +9,48 @@ namespace TaskSchedulerService.Models
 {
     public enum TypeAction
     {
-        EveryDay = 1,
-        EveryWeek = 2
+        EveryDay = 0,
+        EveryWeek = 1
     }
 
+    [System.Serializable]
     class Task
     {
-        public string Name;
-        public DateTime TimeStart;
-        public string Path;
-        public TypeAction Type;
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public DateTime TimeStart { get; set; }
+        public string Path { get; set; }
+        public TypeAction Type { get; set; }
 
         public void Start()
         {
             Process process = Process.Start(Path);
 
+            AddDays();
+
+            Database.UpdateTaskTime(Id, TimeStart.ToString());
+        }
+
+        public void CheckDays()
+        {
+            while (TimeStart <= DateTime.Now)
+            {
+                AddDays();
+            }
+
+            Database.UpdateTaskTime(Id, TimeStart.ToString());
+        }
+
+        public void AddDays()
+        {
             switch (Type)
             {
                 case TypeAction.EveryDay:
-                    TimeStart.AddDays(1);
+                    TimeStart = TimeStart.AddDays(1);
                     break;
                 case TypeAction.EveryWeek:
-                    TimeStart.AddDays(7);
+                    TimeStart = TimeStart.AddDays(7);
                     break;
-            }
-
-            try
-            {
-                process.WaitForExit();
-            }
-            finally
-            {
-                process.Dispose();
             }
         }
     }

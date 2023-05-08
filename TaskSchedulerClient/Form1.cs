@@ -10,18 +10,29 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Timers;
 
 namespace TaskSchedulerClient
 {
     public partial class Form1 : Form
     {
         private TaskController _taskController = new TaskController();
-        private string _nameFile = "Logs.txt"; //Файл для общения сервиса и клиента
+        private static string _nameFile = "Logs.txt"; //Файл для общения сервиса и клиента
+
+        string fullPathFolder = "";
+        string fullPathFile = "";
 
         public Form1()
         {
             InitializeComponent();
+
+            fullPathFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)}\\TaskScheduler\\";
+            fullPathFile = $"{fullPathFolder}/{_nameFile}";
+
+            Database.Connect();
+
             LoadTasks();
+
         }
 
         private void OnAddTask_Click(object sender, EventArgs e)
@@ -42,48 +53,58 @@ namespace TaskSchedulerClient
                     throw new Exception("Путь не может быть пустым");
 
                 _taskController.AddTasks(task);
+                Database.AddTask(_taskController.GetLastTask());
                 tbNameTask.Text = "";
                 tbTimeTask.Text = "";
                 labelPath.Text = "";
 
-                SaveTasks();
                 WriteToTable();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private async void SaveTasks()
+        private async void SaveTask()
         {
-            string json = JsonSerializer.Serialize(_taskController);
-            using (FileStream fstream = new FileStream(_nameFile, FileMode.OpenOrCreate))
-            {
-                // преобразуем строку в байты
-                byte[] buffer = Encoding.Default.GetBytes(json.ToString());
-                // запись массива байтов в файл
-                await fstream.WriteAsync(buffer, 0, buffer.Length);
-                Console.WriteLine("Текст записан в файл");
-            }
+            //string json = JsonSerializer.Serialize(_taskController);
+            //using (FileStream fstream = new FileStream(fullPathFile, FileMode.OpenOrCreate))
+            //{
+            //    // преобразуем строку в байты
+            //    byte[] buffer = Encoding.Default.GetBytes(json.ToString());
+            //    // запись массива байтов в файл
+            //    await fstream.WriteAsync(buffer, 0, buffer.Length);
+            //    Console.WriteLine("Текст записан в файл");
+            //}
         }
 
         private async void LoadTasks()
         {
-            StringBuilder textFromFile = null;
-            string test;
-            using (FileStream fstream = File.OpenRead(_nameFile))
-            {
-                // выделяем массив для считывания данных из файла
-                byte[] buffer = new byte[fstream.Length];
-                // считываем данные
-                await fstream.ReadAsync(buffer, 0, buffer.Length);
-                // декодируем байты в строку
-                textFromFile = new StringBuilder(Encoding.Default.GetString(buffer));
-                Console.WriteLine($"Текст из файла: {textFromFile}");
-            }
+            //StringBuilder textFromFile = null;
+            //string test;
+            //using (FileStream fstream = new FileStream(fullPathFile, FileMode.OpenOrCreate))
+            //{
+            //    // выделяем массив для считывания данных из файла
+            //    byte[] buffer = new byte[fstream.Length];
+            //    // считываем данные
+            //    await fstream.ReadAsync(buffer, 0, buffer.Length);
+            //    // декодируем байты в строку
+            //    textFromFile = new StringBuilder(Encoding.Default.GetString(buffer));
+            //    Console.WriteLine($"Текст из файла: {textFromFile}");
+            //}
 
-            _taskController = JsonSerializer.Deserialize<TaskController>(textFromFile.ToString());
+            //try
+            //{
+            //    _taskController = JsonSerializer.Deserialize<TaskController>(textFromFile.ToString());
+            //    WriteToTable();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex);
+            //}
+
+            _taskController.Tasks = Database.GetTasks();
             WriteToTable();
         }
 
